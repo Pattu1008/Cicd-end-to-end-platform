@@ -44,10 +44,14 @@ pipeline {
                 always {
                     junit 'services/product-service/target/surefire-reports/*.xml'
 
-                    recordCoverage tools: [[
-                        parser: 'JACOCO',
-                        pattern: 'services/product-service/target/site/jacoco/jacoco.xml'
-                    ]]
+                    recordCoverage(
+                        id: 'product-service',
+                        name: 'Product Service Coverage',
+                        tools: [[
+                            parser: 'JACOCO',
+                            pattern: 'services/product-service/target/site/jacoco/jacoco.xml'
+                        ]]
+                    )
                 }
             }
         }
@@ -62,10 +66,14 @@ pipeline {
                 always {
                     junit 'services/order-service/target/surefire-reports/*.xml'
 
-                    recordCoverage tools: [[
-                        parser: 'JACOCO',
-                        pattern: 'services/order-service/target/site/jacoco/jacoco.xml'
-                    ]]
+                    recordCoverage(
+                        id: 'order-service',
+                        name: 'Order Service Coverage',
+                        tools: [[
+                            parser: 'JACOCO',
+                            pattern: 'services/order-service/target/site/jacoco/jacoco.xml'
+                        ]]
+                    )
                 }
             }
         }
