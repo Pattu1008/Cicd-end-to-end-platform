@@ -18,6 +18,7 @@ pipeline {
             }
         }
 
+        // Build Product Service
         stage('Build Product Service') {
             steps {
                 dir('services/product-service') {
@@ -26,6 +27,7 @@ pipeline {
             }
         }
 
+        // Build Order Service
         stage('Build Order Service') {
             steps {
                 dir('services/order-service') {
@@ -34,6 +36,7 @@ pipeline {
             }
         }
 
+        // Test Product Service and publish reports
         stage('Test Product Service') {
             steps {
                 dir('services/product-service') {
@@ -56,6 +59,18 @@ pipeline {
             }
         }
 
+        // SonarQube Analysis - Product Service
+        stage('SonarQube Analysis - Product Service') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('services/product-service') {
+                        bat 'mvn sonar:sonar -Dsonar.projectKey=product-service -Dsonar.projectName="Product Service" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    }
+                }
+            }
+        }
+
+        // Test Order Service and publish reports
         stage('Test Order Service') {
             steps {
                 dir('services/order-service') {
@@ -74,6 +89,17 @@ pipeline {
                             pattern: 'services/order-service/target/site/jacoco/jacoco.xml'
                         ]]
                     )
+                }
+            }
+        }
+
+        // SonarQube Analysis - Order Service
+        stage('SonarQube Analysis - Order Service') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('services/order-service') {
+                        bat 'mvn sonar:sonar -Dsonar.projectKey=order-service -Dsonar.projectName="Order Service" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    }
                 }
             }
         }
