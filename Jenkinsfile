@@ -46,7 +46,7 @@ pipeline {
 
                     recordCoverage tools: [[
                         parser: 'JACOCO',
-                        pattern: 'pattern: 'services/product-service/target/site/jacoco/jacoco.xml''
+                        pattern: 'services/product-service/target/site/jacoco/jacoco.xml'
                     ]]
                 }
             }
@@ -64,7 +64,7 @@ pipeline {
 
                     recordCoverage tools: [[
                         parser: 'JACOCO',
-                        pattern: 'pattern: 'services/order-service/target/site/jacoco/jacoco.xml''
+                        pattern: 'services/order-service/target/site/jacoco/jacoco.xml'
                     ]]
                 }
             }
