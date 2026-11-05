@@ -62,9 +62,9 @@ pipeline {
         // SonarQube Analysis - Product Service
         stage('SonarQube Analysis - Product Service') {
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('ProductSonarQube') {
                     dir('services/product-service') {
-                        bat 'mvn sonar:sonar -Dsonar.projectKey=product-service -Dsonar.projectName="Product Service" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                        bat 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.3.0.6276:sonar -Dsonar.projectKey=product-service -Dsonar.projectName="Product Service" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
                     }
                 }
             }
@@ -96,9 +96,9 @@ pipeline {
         // SonarQube Analysis - Order Service
         stage('SonarQube Analysis - Order Service') {
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('OrderSonarQube') {
                     dir('services/order-service') {
-                        bat 'mvn sonar:sonar -Dsonar.projectKey=order-service -Dsonar.projectName="Order Service" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                        bat 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.3.0.6276:sonar -Dsonar.projectKey=order-service -Dsonar.projectName="Order Service" -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
                     }
                 }
             }
