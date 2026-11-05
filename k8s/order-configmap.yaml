@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-config
+  namespace: microservices-cicd
+data:
+  APP_NAME: order-service
+  APP_ENV: development
+  SERVER_PORT: "18082"

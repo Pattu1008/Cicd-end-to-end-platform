@@ -1,0 +1,10 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-config
+  namespace: {{ .Values.namespace }}
+data:
+  APP_NAME: {{ .Values.order.config.APP_NAME | quote }}
+  APP_ENV: {{ .Values.order.config.APP_ENV | quote }}
+  SERVER_PORT: {{ .Values.order.config.SERVER_PORT | quote }}

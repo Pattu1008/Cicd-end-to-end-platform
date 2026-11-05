@@ -1,0 +1,109 @@
+
+namespace: microservices-cicd
+
+serviceAccount:
+  name: microservices-sa
+  create: false
+
+product:
+  replicaCount: 2
+
+  image:
+    repository: product-service
+    tag: "1.0"
+    pullPolicy: IfNotPresent
+
+  containerPort: 18081
+
+  service:
+    type: NodePort
+    port: 18081
+    nodePort: 30081
+
+  configMap: product-config
+  secretName: product-secret
+
+  config:
+    APP_NAME: product-service
+    APP_ENV: development
+    SERVER_PORT: "18081"
+
+  secretData:
+    DB_USERNAME: product_user
+    DB_PASSWORD: change-this-demo-password
+    API_TOKEN: product-demo-token
+
+  persistence:
+    enabled: true
+    existingClaim: product-pvc
+    mountPath: /data
+
+  probes:
+    readiness:
+      path: /products/health
+      initialDelaySeconds: 10
+      periodSeconds: 5
+    liveness:
+      path: /products/health
+      initialDelaySeconds: 20
+      periodSeconds: 10
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 50
+
+order:
+  replicaCount: 1
+
+  image:
+    repository: order-service
+    tag: "1.0"
+    pullPolicy: IfNotPresent
+
+  containerPort: 18082
+
+  service:
+    type: NodePort
+    port: 18082
+    nodePort: 30082
+
+  configMap: order-config
+
+  config:
+    APP_NAME: order-service
+    APP_ENV: development
+    SERVER_PORT: "18082"
+
+  probes:
+    readiness:
+      path: /orders/health
+      initialDelaySeconds: 10
+      periodSeconds: 5
+    liveness:
+      path: /orders/health
+      initialDelaySeconds: 20
+      periodSeconds: 10
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 50

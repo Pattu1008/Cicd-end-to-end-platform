@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-deployment
+  namespace: microservices-cicd
+  labels:
+    app: order-service
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: order-service
+
+  template:
+    metadata:
+      labels:
+        app: order-service
+
+    spec:
+      serviceAccountName: microservices-sa
+      automountServiceAccountToken: false
+
+      containers:
+        - name: order-container
+          image: order-service:1.0
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 18082
+
+          envFrom:
+            - configMapRef:
+                name: order-config
+
+          readinessProbe:
+            httpGet:
+              path: /orders/health
+              port: 18082
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /orders/health
+              port: 18082
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

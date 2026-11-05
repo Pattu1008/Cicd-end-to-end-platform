@@ -1,0 +1,70 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-deployment
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: product-service
+
+spec:
+  {{- if not .Values.product.autoscaling.enabled }}
+  replicas: {{ .Values.product.replicaCount }}
+  {{- end }}
+
+  selector:
+    matchLabels:
+      app: product-service
+
+  template:
+    metadata:
+      labels:
+        app: product-service
+
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      automountServiceAccountToken: false
+
+      containers:
+        - name: product-container
+          image: "{{ .Values.product.image.repository }}:{{ .Values.product.image.tag }}"
+          imagePullPolicy: {{ .Values.product.image.pullPolicy }}
+
+          ports:
+            - containerPort: {{ .Values.product.containerPort }}
+
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.product.configMap }}
+            - secretRef:
+                name: {{ .Values.product.secretName }}
+
+          {{- if .Values.product.persistence.enabled }}
+          volumeMounts:
+            - name: product-storage
+              mountPath: {{ .Values.product.persistence.mountPath }}
+          {{- end }}
+
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.product.probes.readiness.path }}
+              port: {{ .Values.product.containerPort }}
+            initialDelaySeconds: {{ .Values.product.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.product.probes.readiness.periodSeconds }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.product.probes.liveness.path }}
+              port: {{ .Values.product.containerPort }}
+            initialDelaySeconds: {{ .Values.product.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.product.probes.liveness.periodSeconds }}
+
+          resources:
+            {{- toYaml .Values.product.resources | nindent 12 }}
+
+      {{- if .Values.product.persistence.enabled }}
+      volumes:
+        - name: product-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.product.persistence.existingClaim }}
+      {{- end }}

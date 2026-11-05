@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sample-cronjob
+  namespace: microservices-cicd
+
+spec:
+  schedule: "*/1 * * * *"
+
+  concurrencyPolicy: Forbid
+
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 2
+
+  jobTemplate:
+    spec:
+      completions: 1
+      parallelism: 1
+      backoffLimit: 2
+
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: cron-container
+              image: busybox:1.36
+              command: ["/bin/sh", "-c"]
+              args:
+                - echo "Scheduled task started";
+                  date;
+                  echo "Scheduled task completed"

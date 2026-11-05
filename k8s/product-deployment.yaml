@@ -1,0 +1,69 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-deployment
+  namespace: microservices-cicd
+  labels:
+    app: product-service
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: product-service
+
+  template:
+    metadata:
+      labels:
+        app: product-service
+
+    spec:
+      serviceAccountName: microservices-sa
+      automountServiceAccountToken: false
+
+      containers:
+        - name: product-container
+          image: product-service:1.0
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 18081
+
+          envFrom:
+            - configMapRef:
+                name: product-config
+            - secretRef:
+                name: product-secret
+
+          volumeMounts:
+            - name: product-storage
+              mountPath: /data
+
+          readinessProbe:
+            httpGet:
+              path: /products/health
+              port: 18081
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /products/health
+              port: 18081
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+      volumes:
+        - name: product-storage
+          persistentVolumeClaim:
+            claimName: product-pvc
