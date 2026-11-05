@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -38,12 +37,17 @@ pipeline {
         stage('Test Product Service') {
             steps {
                 dir('services/product-service') {
-                    bat 'mvn test'
+                    bat 'mvn clean verify'
                 }
             }
             post {
                 always {
                     junit 'services/product-service/target/surefire-reports/*.xml'
+
+                    recordCoverage tools: [[
+                        parser: 'JACOCO',
+                        pattern: 'services/product-service/target/site/jacoco/jacoco.xml'
+                    ]]
                 }
             }
         }
@@ -51,12 +55,17 @@ pipeline {
         stage('Test Order Service') {
             steps {
                 dir('services/order-service') {
-                    bat 'mvn test'
+                    bat 'mvn clean verify'
                 }
             }
             post {
                 always {
                     junit 'services/order-service/target/surefire-reports/*.xml'
+
+                    recordCoverage tools: [[
+                        parser: 'JACOCO',
+                        pattern: 'services/order-service/target/site/jacoco/jacoco.xml'
+                    ]]
                 }
             }
         }
