@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -153,7 +152,9 @@ pipeline {
             }
         }
 
-        // 14. Deploy Product Service using YAML
+        /*
+        // 14. OLD DEPLOYMENT METHOD - Product Service using Kubernetes YAML
+
         stage('Deploy Product Service') {
             steps {
                 powershell '''
@@ -171,7 +172,8 @@ pipeline {
             }
         }
 
-        // 15. Deploy Order Service using YAML
+        // 15. OLD DEPLOYMENT METHOD - Order Service using Kubernetes YAML
+
         stage('Deploy Order Service') {
             steps {
                 powershell '''
@@ -189,7 +191,16 @@ pipeline {
             }
         }
 
-        // 16. Verify Kubernetes Rollout
+        */
+
+        // 14. NEW DEPLOYMENT METHOD - Helm
+        stage('Deploy Microservices using Helm') {
+            steps {
+                bat 'helm upgrade --install microservices ./microservices -n microservices-cicd --set product.image.tag=%BUILD_NUMBER% --set order.image.tag=%BUILD_NUMBER% --wait --timeout 180s'
+            }
+        }
+
+        // 15. Verify Kubernetes Rollout
         stage('Verify Kubernetes Rollout') {
             steps {
                 bat 'kubectl rollout status deployment/product-deployment -n microservices-cicd --timeout=180s'
@@ -197,11 +208,12 @@ pipeline {
             }
         }
 
-        // 17. Verify deployed pods
+        // 16. Verify deployed pods
         stage('Verify Kubernetes Pods') {
             steps {
                 bat 'kubectl get pods -n microservices-cicd -o wide'
                 bat 'kubectl get services -n microservices-cicd'
+                bat 'helm list -n microservices-cicd'
             }
         }
     }
@@ -211,7 +223,7 @@ pipeline {
             echo 'CI/CD Pipeline execution completed.'
         }
         success {
-            echo 'Both microservices successfully deployed to Kind!'
+            echo 'Both microservices successfully deployed to Kind using Helm!'
         }
         failure {
             echo 'Pipeline failed. Check the failed stage in Console Output.'
