@@ -204,7 +204,7 @@ pipeline {
         // 15. NEW DEPLOYMENT METHOD - Helm
         stage('Deploy Microservices using Helm') {
             steps {
-                bat '"C:\\Users\\Prateek Sangle\\bin\\helm.exe" upgrade --install microservices ./microservices -n microservices-cicd --set product.image.tag=%BUILD_NUMBER% --set order.image.tag=%BUILD_NUMBER% --wait --timeout 180s'
+                bat '"C:\\Users\\Prateek Sangle\\bin\\helm.exe" upgrade --install microservices ./microservices -n microservices-cicd --set product.image.tag=%BUILD_NUMBER% --set order.image.tag=%BUILD_NUMBER% --server-side=false --wait --timeout 180s'
             }
         }
 
