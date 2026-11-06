@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -10,20 +11,20 @@ pipeline {
         maven 'Maven310'
     }
 
-
     environment {
-    IMAGE_TAG = "${BUILD_NUMBER}"
-    }   
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
 
     stages {
 
+        // 1. Checkout source code
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        // Build Product Service
+        // 2. Build Product Service
         stage('Build Product Service') {
             steps {
                 dir('services/product-service') {
@@ -32,7 +33,7 @@ pipeline {
             }
         }
 
-        // Build Order Service
+        // 3. Build Order Service
         stage('Build Order Service') {
             steps {
                 dir('services/order-service') {
@@ -41,7 +42,7 @@ pipeline {
             }
         }
 
-        // Test Product Service and publish reports
+        // 4. Test Product Service and publish reports
         stage('Test Product Service') {
             steps {
                 dir('services/product-service') {
@@ -64,7 +65,7 @@ pipeline {
             }
         }
 
-        // SonarQube Analysis - Product Service
+        // 5. SonarQube Analysis - Product Service
         stage('SonarQube Analysis - Product Service') {
             steps {
                 withSonarQubeEnv('ProductSonarQube') {
@@ -75,7 +76,7 @@ pipeline {
             }
         }
 
-        // Test Order Service and publish reports
+        // 6. Test Order Service and publish reports
         stage('Test Order Service') {
             steps {
                 dir('services/order-service') {
@@ -98,7 +99,7 @@ pipeline {
             }
         }
 
-        // SonarQube Analysis - Order Service
+        // 7. SonarQube Analysis - Order Service
         stage('SonarQube Analysis - Order Service') {
             steps {
                 withSonarQubeEnv('OrderSonarQube') {
@@ -109,26 +110,30 @@ pipeline {
             }
         }
 
+        // 8. Check Docker access
         stage('Check Docker Access') {
             steps {
-                  bat 'docker version'
-                }
+                bat 'docker version'
             }
+        }
 
+        // 9. Check Kubernetes configuration
         stage('Check Kubernetes Config') {
             steps {
-                 bat 'whoami'
-                 bat 'where kubectl'
-                 bat 'kubectl config current-context'
-                 bat 'kubectl config view --minify'
-                }
+                bat 'whoami'
+                bat 'echo %KUBECONFIG%'
+                bat 'where kubectl'
+                bat 'kubectl config current-context'
+                bat 'kubectl config view --minify'
             }
+        }
 
+        // 10. Check Kubernetes cluster access
         stage('Check Kubernetes Access') {
             steps {
-                    bat 'kubectl get nodes'
-                }
+                bat 'kubectl get nodes'
             }
+        }
     }
 
     post {
