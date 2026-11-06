@@ -129,6 +129,17 @@ pipeline {
                bat 'docker build -t order-service:%BUILD_NUMBER% ./services/order-service'
             }
         }
+        stage('Load Product Image into Kind') {
+            steps {
+                 bat '"C:\\Tools\\kind\\kind.exe" load docker-image product-service:%BUILD_NUMBER% --name devops-lab'
+            }
+        }
+
+        stage('Load Order Image into Kind') {
+            steps {
+                 bat '"C:\\Tools\\kind\\kind.exe" load docker-image order-service:%BUILD_NUMBER% --name devops-lab'
+            }
+        }
 
         // 9. Check Kubernetes configuration
         stage('Check Kubernetes Config') {
