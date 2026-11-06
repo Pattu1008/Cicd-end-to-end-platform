@@ -116,53 +116,83 @@ pipeline {
                 bat 'docker version'
             }
         }
-        // Build Product Docker Image
+
+        // 9. Build Product Docker Image
         stage('Build Product Docker Image') {
             steps {
                 bat 'docker build -t product-service:%BUILD_NUMBER% ./services/product-service'
             }
         }
 
-        // Build Order Docker Image
-       stage('Build Order Docker Image') {
+        // 10. Build Order Docker Image
+        stage('Build Order Docker Image') {
             steps {
-               bat 'docker build -t order-service:%BUILD_NUMBER% ./services/order-service'
+                bat 'docker build -t order-service:%BUILD_NUMBER% ./services/order-service'
             }
         }
+
+        // 11. Load Product Image into Kind
         stage('Load Product Image into Kind') {
             steps {
-                 bat '"C:\\Tools\\kind\\kind.exe" load docker-image product-service:%BUILD_NUMBER% --name devops-lab'
+                bat '"C:\\Tools\\kind\\kind.exe" load docker-image product-service:%BUILD_NUMBER% --name devops-lab'
             }
         }
 
+        // 12. Load Order Image into Kind
         stage('Load Order Image into Kind') {
             steps {
-                 bat '"C:\\Tools\\kind\\kind.exe" load docker-image order-service:%BUILD_NUMBER% --name devops-lab'
+                bat '"C:\\Tools\\kind\\kind.exe" load docker-image order-service:%BUILD_NUMBER% --name devops-lab'
             }
         }
 
-        // 9. Check Kubernetes configuration
-        stage('Check Kubernetes Config') {
-            steps {
-                bat 'whoami'
-                bat 'echo %KUBECONFIG%'
-                bat 'where kubectl'
-                bat 'kubectl config current-context'
-                bat 'kubectl config view --minify'
-            }
-        }
-
-        // 10. Check Kubernetes cluster access
+        // 13. Check Kubernetes access
         stage('Check Kubernetes Access') {
             steps {
+                bat 'kubectl config current-context'
                 bat 'kubectl get nodes'
+            }
+        }
+
+        // 14. Deploy Product Service
+        stage('Deploy Product Service') {
+            steps {
+                bat 'kubectl set image deployment/product-deployment product-service=product-service:%BUILD_NUMBER% -n microservices-cicd'
+            }
+        }
+
+        // 15. Deploy Order Service
+        stage('Deploy Order Service') {
+            steps {
+                bat 'kubectl set image deployment/order-deployment order-service=order-service:%BUILD_NUMBER% -n microservices-cicd'
+            }
+        }
+
+        // 16. Verify Kubernetes Rollout
+        stage('Verify Kubernetes Rollout') {
+            steps {
+                bat 'kubectl rollout status deployment/product-deployment -n microservices-cicd --timeout=180s'
+                bat 'kubectl rollout status deployment/order-deployment -n microservices-cicd --timeout=180s'
+            }
+        }
+
+        // 17. Verify deployed pods
+        stage('Verify Kubernetes Pods') {
+            steps {
+                bat 'kubectl get pods -n microservices-cicd -o wide'
+                bat 'kubectl get services -n microservices-cicd'
             }
         }
     }
 
     post {
         always {
-            echo 'CI Pipeline execution completed.'
+            echo 'CI/CD Pipeline execution completed.'
+        }
+        success {
+            echo 'Both microservices successfully deployed to Kind!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the failed stage in Console Output.'
         }
     }
 }
