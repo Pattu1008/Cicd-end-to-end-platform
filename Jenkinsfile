@@ -10,6 +10,11 @@ pipeline {
         maven 'Maven310'
     }
 
+
+    environment {
+    IMAGE_TAG = "${BUILD_NUMBER}"
+    }   
+
     stages {
 
         stage('Checkout') {
@@ -103,6 +108,12 @@ pipeline {
                 }
             }
         }
+
+        stage('Check Docker Access') {
+            steps {
+                  bat 'docker version'
+                }
+            }
     }
 
     post {
