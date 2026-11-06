@@ -116,6 +116,19 @@ pipeline {
                 bat 'docker version'
             }
         }
+        // Build Product Docker Image
+        stage('Build Product Docker Image') {
+            steps {
+                bat 'docker build -t product-service:%BUILD_NUMBER% ./services/product-service'
+            }
+        }
+
+        // Build Order Docker Image
+       stage('Build Order Docker Image') {
+            steps {
+               bat 'docker build -t order-service:%BUILD_NUMBER% ./services/order-service'
+            }
+        }
 
         // 9. Check Kubernetes configuration
         stage('Check Kubernetes Config') {
