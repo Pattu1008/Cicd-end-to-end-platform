@@ -115,6 +115,15 @@ pipeline {
                 }
             }
 
+        stage('Check Kubernetes Config') {
+            steps {
+                 bat 'whoami'
+                 bat 'where kubectl'
+                 bat 'kubectl config current-context'
+                 bat 'kubectl config view --minify'
+                }
+            }
+
         stage('Check Kubernetes Access') {
             steps {
                     bat 'kubectl get nodes'
