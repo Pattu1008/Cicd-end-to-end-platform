@@ -153,17 +153,39 @@ pipeline {
             }
         }
 
-        // 14. Deploy Product Service
+        // 14. Deploy Product Service using YAML
         stage('Deploy Product Service') {
             steps {
-                bat 'kubectl set image deployment/product-deployment product-service=product-service:%BUILD_NUMBER% -n microservices-cicd'
+                powershell '''
+                    $yaml = Get-Content "k8s/product-deployment.yaml" -Raw
+                    $yaml = $yaml.Replace('${IMAGE_TAG}', $env:IMAGE_TAG)
+
+                    [System.IO.File]::WriteAllText(
+                        "k8s/product-deployment-rendered.yaml",
+                        $yaml,
+                        [System.Text.UTF8Encoding]::new($false)
+                    )
+                '''
+
+                bat 'kubectl apply -f k8s/product-deployment-rendered.yaml'
             }
         }
 
-        // 15. Deploy Order Service
+        // 15. Deploy Order Service using YAML
         stage('Deploy Order Service') {
             steps {
-                bat 'kubectl set image deployment/order-deployment order-service=order-service:%BUILD_NUMBER% -n microservices-cicd'
+                powershell '''
+                    $yaml = Get-Content "k8s/order-deployment.yaml" -Raw
+                    $yaml = $yaml.Replace('${IMAGE_TAG}', $env:IMAGE_TAG)
+
+                    [System.IO.File]::WriteAllText(
+                        "k8s/order-deployment-rendered.yaml",
+                        $yaml,
+                        [System.Text.UTF8Encoding]::new($false)
+                    )
+                '''
+
+                bat 'kubectl apply -f k8s/order-deployment-rendered.yaml'
             }
         }
 
