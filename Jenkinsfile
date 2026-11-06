@@ -114,6 +114,12 @@ pipeline {
                   bat 'docker version'
                 }
             }
+
+        stage('Check Kubernetes Access') {
+            steps {
+                    bat 'kubectl get nodes'
+                }
+            }
     }
 
     post {

@@ -7,5 +7,5 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/order-service-1.0.0.jar app.jar
-EXPOSE 18081
+EXPOSE 18082
 CMD ["java","-jar","app.jar"]
