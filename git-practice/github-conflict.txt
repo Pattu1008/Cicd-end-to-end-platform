@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 Application port: 8081
+=======
+Application port: 9090
+>>>>>>> f34dc97 (feat: developer B adds application config)
