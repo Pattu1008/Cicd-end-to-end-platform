@@ -1,1 +1,1 @@
-Application port: 8080
+Application port: 9090
